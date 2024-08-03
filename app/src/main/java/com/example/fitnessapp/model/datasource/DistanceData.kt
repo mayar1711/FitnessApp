@@ -1,34 +1,29 @@
-package com.example.fitnessapp.model
+package com.example.fitnessapp.model.datasource
 
 import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import com.example.fitnessapp.utils.HealthConnectUtils.dateTimeFormatter
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.Period
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import androidx.health.connect.client.units.Length
+import com.example.fitnessapp.model.DataRecord
+import com.example.fitnessapp.model.DataType
+import com.example.fitnessapp.model.Repository.dateTimeFormatter
+import java.time.*
 import java.util.TimeZone
 
-class StepsData(private val healthConnectClient: HealthConnectClient) : HealthDataReader, HealthDataWriter {
+class DistanceData(private val healthConnectClient: HealthConnectClient) : HealthDataReader,
+    HealthDataWriter {
 
     override suspend fun readDataForInterval(interval: Long): List<DataRecord> {
         val startTime: ZonedDateTime =
-            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(interval-1)
+            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(interval - 1)
 
-        val endTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).minusMinutes(1)
-            .plusSeconds(59)
-        Log.i("TAG", "readDataForInterval: $startTime")
-        Log.i("TAG", "readDataForInterval: $endTime")
+        val endTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId())
         val response =
             healthConnectClient.aggregateGroupByPeriod(
                 AggregateGroupByPeriodRequest(
-                    metrics = setOf(StepsRecord.COUNT_TOTAL),
+                    metrics = setOf(DistanceRecord.DISTANCE_TOTAL),
                     timeRangeFilter = TimeRangeFilter.between(
                         startTime.toLocalDate().atStartOfDay(),
                         endTime.toLocalDateTime()
@@ -36,58 +31,56 @@ class StepsData(private val healthConnectClient: HealthConnectClient) : HealthDa
                     timeRangeSlicer = Period.ofDays(1)
                 )
             )
+
         if (response != null) {
-            val stepsData = mutableListOf<DataRecord>()
+            val distanceData = mutableListOf<DataRecord>()
             response.sortedBy { it.startTime }
             var trackTime = startTime.toLocalDate().atStartOfDay()
             for (dailyResult in response) {
                 if (dailyResult.startTime.isAfter(trackTime)) {
                     while (trackTime.isBefore(dailyResult.startTime)) {
-                        stepsData.add(
+                        distanceData.add(
                             DataRecord(
                                 metricValue = "0",
-                                dataType = DataType.STEPS,
+                                dataType = DataType.DISTANCE,
                                 toDatetime = trackTime.toLocalDate().atTime(LocalTime.MAX)
-                                    .atZone(ZoneId.systemDefault()).format(
-                                        dateTimeFormatter
-                                    ),
+                                    .atZone(ZoneId.systemDefault()).format(dateTimeFormatter),
                                 fromDatetime = if (trackTime.toLocalDate()
                                         .isEqual(startTime.toLocalDate())
                                 ) startTime.format(dateTimeFormatter) else trackTime.atZone(ZoneId.systemDefault())
                                     .format(dateTimeFormatter)
                             )
                         )
-                        trackTime = trackTime.plusDays(1)
+                        trackTime = trackTime.plusDays(1).toLocalDate().atStartOfDay()
                     }
                 }
-                val totalSteps = dailyResult.result[StepsRecord.COUNT_TOTAL]
-                stepsData.add(
+                val totalDistance = dailyResult.result[DistanceRecord.DISTANCE_TOTAL]?.inMiles
+                distanceData.add(
                     DataRecord(
-                        metricValue = (totalSteps ?: 0).toString(),
-                        dataType = DataType.STEPS,
+                        metricValue = (totalDistance ?: 0.0).toString(),
+                        dataType = DataType.DISTANCE,
                         toDatetime = dailyResult.endTime.atZone(ZoneId.systemDefault())
                             .minusSeconds(1)
                             .format(dateTimeFormatter),
                         fromDatetime = if (dailyResult.startTime.toLocalDate()
                                 .isEqual(startTime.toLocalDate())
-                        ) startTime.format(
-                            dateTimeFormatter
-                        ) else dailyResult.startTime.atZone(ZoneId.systemDefault())
+                        ) startTime.format(dateTimeFormatter) else dailyResult.startTime.atZone(ZoneId.systemDefault())
                             .format(dateTimeFormatter)
                     )
                 )
                 trackTime = dailyResult.endTime
             }
-            while (trackTime.isBefore(endTime.toLocalDateTime()) && Duration.between(trackTime,endTime).toMinutes()>1) {
-                stepsData.add(
+            while (trackTime.isBefore(endTime.toLocalDateTime()) && Duration.between(trackTime, endTime).toMinutes() > 1) {
+                distanceData.add(
                     DataRecord(
                         metricValue = "0",
-                        dataType = DataType.STEPS,
-                        toDatetime = if (trackTime.toLocalDate().isEqual(endTime.toLocalDate()))
+                        dataType = DataType.DISTANCE,
+                        toDatetime = if (trackTime.toLocalDate()
+                                .isEqual(endTime.toLocalDate())
+                        )
                             endTime.format(dateTimeFormatter)
                         else trackTime.toLocalDate().atTime(LocalTime.MAX)
-                            .atZone(ZoneId.systemDefault())
-                            .format(dateTimeFormatter),
+                            .atZone(ZoneId.systemDefault()).format(dateTimeFormatter),
                         fromDatetime = if (trackTime.toLocalDate()
                                 .isEqual(startTime.toLocalDate())
                         )
@@ -95,23 +88,23 @@ class StepsData(private val healthConnectClient: HealthConnectClient) : HealthDa
                         else trackTime.atZone(ZoneId.systemDefault()).format(dateTimeFormatter)
                     )
                 )
-                trackTime = trackTime.plusDays(1).toLocalDate().atStartOfDay()
+                trackTime = trackTime.plusDays(1)
             }
-            Log.d("Data", stepsData.toString())
-            return stepsData
+            Log.d("Data", distanceData.toString())
+            return distanceData
         }
         return emptyList()
     }
 
     override suspend fun writeData(data: Any, startTime: ZonedDateTime, endTime: ZonedDateTime) {
-        val steps = data as Long
-        val stepsRecord = StepsRecord(
-            count = steps,
+        val distance = data as Double
+        val distanceRecord = DistanceRecord(
+            distance = Length.miles(distance),
             startTime = startTime.toInstant(),
             endTime = endTime.toInstant(),
             startZoneOffset = startTime.offset,
             endZoneOffset = endTime.offset
         )
-        healthConnectClient.insertRecords(listOf(stepsRecord))
+        healthConnectClient.insertRecords(listOf(distanceRecord))
     }
 }

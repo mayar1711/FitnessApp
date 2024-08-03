@@ -1,11 +1,13 @@
-package com.example.fitnessapp.model
+package com.example.fitnessapp.model.datasource
 
-
+import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import androidx.health.connect.client.units.Energy
+import com.example.fitnessapp.model.DataRecord
+import com.example.fitnessapp.model.DataType
+import com.example.fitnessapp.model.Repository.dateTimeFormatter
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -13,79 +15,81 @@ import java.time.LocalTime
 import java.time.Period
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import java.util.TimeZone
 
-class CaloriesData(private val healthConnectClient: HealthConnectClient) : HealthDataReader, HealthDataWriter {
-
-    val dateTimeFormatter: DateTimeFormatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+class StepsData(private val healthConnectClient: HealthConnectClient) : HealthDataReader,
+    HealthDataWriter {
 
     override suspend fun readDataForInterval(interval: Long): List<DataRecord> {
         val startTime: ZonedDateTime =
-            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(interval - 1)
+            LocalDate.now().atStartOfDay(ZoneId.systemDefault()).minusDays(interval-1)
 
-        val endTime = LocalDateTime.now().atZone(ZoneId.systemDefault())
+        val endTime = LocalDateTime.now().atZone(TimeZone.getDefault().toZoneId()).minusMinutes(1)
+            .plusSeconds(59)
+        Log.i("TAG", "readDataForInterval: $startTime")
+        Log.i("TAG", "readDataForInterval: $endTime")
         val response =
             healthConnectClient.aggregateGroupByPeriod(
                 AggregateGroupByPeriodRequest(
-                    metrics = setOf(TotalCaloriesBurnedRecord.ENERGY_TOTAL),
+                    metrics = setOf(StepsRecord.COUNT_TOTAL),
                     timeRangeFilter = TimeRangeFilter.between(
-                        startTime.toLocalDateTime(),
+                        startTime.toLocalDate().atStartOfDay(),
                         endTime.toLocalDateTime()
                     ),
                     timeRangeSlicer = Period.ofDays(1)
                 )
             )
-
-        val caloriesData = mutableListOf<DataRecord>()
-
-        response?.let {
-            it.sortedBy { record -> record.startTime }
+        if (response != null) {
+            val stepsData = mutableListOf<DataRecord>()
+            response.sortedBy { it.startTime }
             var trackTime = startTime.toLocalDate().atStartOfDay()
-            for (dailyResult in it) {
+            for (dailyResult in response) {
                 if (dailyResult.startTime.isAfter(trackTime)) {
                     while (trackTime.isBefore(dailyResult.startTime)) {
-                        caloriesData.add(
+                        stepsData.add(
                             DataRecord(
                                 metricValue = "0",
-                                dataType = DataType.CALORIES,
+                                dataType = DataType.STEPS,
                                 toDatetime = trackTime.toLocalDate().atTime(LocalTime.MAX)
-                                    .atZone(ZoneId.systemDefault()).format(dateTimeFormatter),
+                                    .atZone(ZoneId.systemDefault()).format(
+                                        dateTimeFormatter
+                                    ),
                                 fromDatetime = if (trackTime.toLocalDate()
                                         .isEqual(startTime.toLocalDate())
                                 ) startTime.format(dateTimeFormatter) else trackTime.atZone(ZoneId.systemDefault())
                                     .format(dateTimeFormatter)
                             )
                         )
-                        trackTime = trackTime.plusDays(1).toLocalDate().atStartOfDay()
+                        trackTime = trackTime.plusDays(1)
                     }
                 }
-                val totalCalories = dailyResult.result[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inCalories
-                caloriesData.add(
+                val totalSteps = dailyResult.result[StepsRecord.COUNT_TOTAL]
+                stepsData.add(
                     DataRecord(
-                        metricValue = (totalCalories ?: 0.0).toString(),
-                        dataType = DataType.CALORIES,
+                        metricValue = (totalSteps ?: 0).toString(),
+                        dataType = DataType.STEPS,
                         toDatetime = dailyResult.endTime.atZone(ZoneId.systemDefault())
-                            .minusSeconds(1).format(dateTimeFormatter),
+                            .minusSeconds(1)
+                            .format(dateTimeFormatter),
                         fromDatetime = if (dailyResult.startTime.toLocalDate()
                                 .isEqual(startTime.toLocalDate())
-                        ) startTime.format(dateTimeFormatter) else dailyResult.startTime.atZone(ZoneId.systemDefault())
+                        ) startTime.format(
+                            dateTimeFormatter
+                        ) else dailyResult.startTime.atZone(ZoneId.systemDefault())
                             .format(dateTimeFormatter)
                     )
                 )
                 trackTime = dailyResult.endTime
             }
-            while (trackTime.isBefore(endTime.toLocalDateTime()) && Duration.between(trackTime, endTime).toMinutes() > 1) {
-                caloriesData.add(
+            while (trackTime.isBefore(endTime.toLocalDateTime()) && Duration.between(trackTime,endTime).toMinutes()>1) {
+                stepsData.add(
                     DataRecord(
                         metricValue = "0",
-                        dataType = DataType.CALORIES,
-                        toDatetime = if (trackTime.toLocalDate()
-                                .isEqual(endTime.toLocalDate())
-                        )
+                        dataType = DataType.STEPS,
+                        toDatetime = if (trackTime.toLocalDate().isEqual(endTime.toLocalDate()))
                             endTime.format(dateTimeFormatter)
-                        else trackTime.toLocalDate()
-                            .atTime(LocalTime.MAX).atZone(ZoneId.systemDefault())
+                        else trackTime.toLocalDate().atTime(LocalTime.MAX)
+                            .atZone(ZoneId.systemDefault())
                             .format(dateTimeFormatter),
                         fromDatetime = if (trackTime.toLocalDate()
                                 .isEqual(startTime.toLocalDate())
@@ -94,23 +98,23 @@ class CaloriesData(private val healthConnectClient: HealthConnectClient) : Healt
                         else trackTime.atZone(ZoneId.systemDefault()).format(dateTimeFormatter)
                     )
                 )
-                trackTime = trackTime.plusDays(1)
+                trackTime = trackTime.plusDays(1).toLocalDate().atStartOfDay()
             }
+            Log.d("Data", stepsData.toString())
+            return stepsData
         }
-
-        return caloriesData
+        return emptyList()
     }
 
     override suspend fun writeData(data: Any, startTime: ZonedDateTime, endTime: ZonedDateTime) {
-        val calories = data as Double
-        val energy = Energy.calories(calories)
-        val caloriesRecord = TotalCaloriesBurnedRecord(
-            energy = energy,
+        val steps = data as Long
+        val stepsRecord = StepsRecord(
+            count = steps,
             startTime = startTime.toInstant(),
-            startZoneOffset = startTime.offset,
             endTime = endTime.toInstant(),
+            startZoneOffset = startTime.offset,
             endZoneOffset = endTime.offset
         )
-        healthConnectClient.insertRecords(listOf(caloriesRecord))
+        healthConnectClient.insertRecords(listOf(stepsRecord))
     }
 }

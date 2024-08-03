@@ -1,4 +1,4 @@
-package com.example.fitnessapp.model
+package com.example.fitnessapp.model.datasource
 
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -6,8 +6,6 @@ import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.example.fitnessapp.model.DataRecord
 import com.example.fitnessapp.model.DataType
-import com.example.fitnessapp.model.HealthDataReader
-import com.example.fitnessapp.model.HealthDataWriter
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,7 +16,8 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import android.util.Log
 
-class ExerciseMinutesData(private val healthConnectClient: HealthConnectClient) : HealthDataReader, HealthDataWriter {
+class ExerciseMinutesData(private val healthConnectClient: HealthConnectClient) : HealthDataReader,
+    HealthDataWriter {
 
     val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
 

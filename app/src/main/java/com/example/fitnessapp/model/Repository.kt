@@ -1,35 +1,22 @@
-package com.example.fitnessapp.utils
+package com.example.fitnessapp.model
 
 import android.content.Context
-import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
-import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
-import com.example.fitnessapp.model.CaloriesData
-import com.example.fitnessapp.model.DataRecord
-import com.example.fitnessapp.model.DataType
-import com.example.fitnessapp.model.DistanceData
-import com.example.fitnessapp.model.ExerciseMinutesData
-import com.example.fitnessapp.model.SleepData
-import com.example.fitnessapp.model.StepsData
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.Period
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import com.example.fitnessapp.model.datasource.CaloriesData
+import com.example.fitnessapp.model.datasource.DistanceData
+import com.example.fitnessapp.model.datasource.ExerciseMinutesData
+import com.example.fitnessapp.model.datasource.SleepData
+import com.example.fitnessapp.model.datasource.StepsData
 import java.time.format.DateTimeFormatter
-import java.util.TimeZone
 
 
-object HealthConnectUtils {
+object Repository {
 
      val dateTimeFormatter: DateTimeFormatter =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
@@ -46,10 +33,12 @@ object HealthConnectUtils {
         HealthPermission.getReadPermission(SleepSessionRecord::class),
         HealthPermission.getReadPermission(DistanceRecord::class),
         HealthPermission.getReadPermission(ExerciseSessionRecord::class),
+        HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
         HealthPermission.getWritePermission(StepsRecord::class),
         HealthPermission.getWritePermission(SleepSessionRecord::class),
         HealthPermission.getWritePermission(DistanceRecord::class),
-        HealthPermission.getWritePermission(ExerciseSessionRecord::class)
+        HealthPermission.getWritePermission(ExerciseSessionRecord::class),
+        HealthPermission.getWritePermission(TotalCaloriesBurnedRecord::class)
     )
 
     fun checkForHealthConnectInstalled(context: Context): Int {
