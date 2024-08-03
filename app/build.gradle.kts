@@ -50,7 +50,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,4 +65,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    //viewmodel
+    implementation(libs.androidx.lifecycle.viewmodel.compose.android)
+    //navigation
+    implementation(libs.androidx.hilt.navigation.compose)
+    //health connect
+  //  implementation(libs.androidx.health.connect.client)
+    implementation("androidx.health.connect:connect-client:1.1.0-alpha07")
+  //  implementation("androidx.health.connect:connect:1.3.0")
+
 }
