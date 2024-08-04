@@ -3,19 +3,14 @@ package com.example.fitnessapp.model.repository
 import android.content.Context
 import android.widget.Toast
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.DistanceRecord
-import androidx.health.connect.client.records.ExerciseSessionRecord
-import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import com.example.fitnessapp.model.DataRecord
 import com.example.fitnessapp.model.datasource.CaloriesData
 import com.example.fitnessapp.model.datasource.DistanceData
 import com.example.fitnessapp.model.datasource.ExerciseMinutesData
 import com.example.fitnessapp.model.datasource.SleepData
 import com.example.fitnessapp.model.datasource.StepsData
 import com.example.fitnessapp.utils.PERMISSIONS
-import java.time.format.DateTimeFormatter
+import java.time.ZonedDateTime
 
 class HealthRepositoryImpl private constructor() : HealthRepository {
 
@@ -31,11 +26,11 @@ class HealthRepositoryImpl private constructor() : HealthRepository {
     }
     var healthConnectClient: HealthConnectClient? = null
 
-    val stepsData: StepsData by lazy { StepsData(healthConnectClient!!) }
-    val distanceData: DistanceData by lazy { DistanceData(healthConnectClient!!) }
-    val exerciseMinutesData: ExerciseMinutesData by lazy { ExerciseMinutesData(healthConnectClient!!) }
-    val sleepData: SleepData by lazy { SleepData(healthConnectClient!!) }
-    val caloriesData: CaloriesData by lazy { CaloriesData(healthConnectClient!!) }
+    private val stepsData: StepsData by lazy { StepsData(healthConnectClient!!) }
+    private val distanceData: DistanceData by lazy { DistanceData(healthConnectClient!!) }
+    private val exerciseMinutesData: ExerciseMinutesData by lazy { ExerciseMinutesData(healthConnectClient!!) }
+    private val sleepData: SleepData by lazy { SleepData(healthConnectClient!!) }
+    private val caloriesData: CaloriesData by lazy { CaloriesData(healthConnectClient!!) }
 
     override fun checkForHealthConnectInstalled(context: Context): Int {
         val availabilityStatus =
@@ -59,4 +54,57 @@ class HealthRepositoryImpl private constructor() : HealthRepository {
         val granted = healthConnectClient?.permissionController?.getGrantedPermissions()
         return granted?.containsAll(PERMISSIONS) ?: false
     }
+
+    override suspend fun readStepsData(interval: Long): List<DataRecord> {
+        return stepsData.readDataForInterval(interval)
+    }
+
+    override suspend fun writeStepsData(steps: Long, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        stepsData.writeData(steps, startTime, endTime)
+    }
+
+    override suspend fun readDistanceData(interval: Long): List<DataRecord> {
+        return distanceData.readDataForInterval(interval)
+    }
+
+    override suspend fun writeDistanceData(distance: Double, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        distanceData.writeData(distance, startTime, endTime)
+    }
+
+    override suspend fun readCaloriesData(interval: Long): List<DataRecord> {
+        return caloriesData.readDataForInterval(interval)
+    }
+
+    override suspend fun writeCaloriesData(
+        distance: Double,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
+    ) {
+        caloriesData.writeData(distance, startTime, endTime)
+    }
+
+    override suspend fun readExerciseMinutesData(interval: Long): List<DataRecord> {
+        return exerciseMinutesData.readDataForInterval(interval)
+    }
+
+    override suspend fun writeExerciseMinutesData(
+        distance: Double,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
+    ) {
+        exerciseMinutesData.writeData(distance, startTime, endTime)
+    }
+
+    override suspend fun readSleepData(interval: Long): List<DataRecord> {
+        return stepsData.readDataForInterval(interval)
+    }
+
+    override suspend fun writeSleepData(
+        distance: Double,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
+    ) {
+        sleepData.writeData(distance, startTime, endTime)
+    }
+
 }

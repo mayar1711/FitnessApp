@@ -7,6 +7,7 @@ import com.example.fitnessapp.model.repository.HealthRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 
 class HealthConnectViewModel (private val repository: HealthRepositoryImpl): ViewModel() {
 
@@ -29,12 +30,38 @@ class HealthConnectViewModel (private val repository: HealthRepositoryImpl): Vie
 
     fun fetchHealthData() {
         viewModelScope.launch {
-            _mins.value = repository.exerciseMinutesData.readDataForInterval(interval).last().metricValue
-            _steps.value = repository.stepsData.readDataForInterval(interval).last().metricValue
-            _distance.value = repository.distanceData.readDataForInterval(interval).last().metricValue
-            _sleepDuration.value = repository.sleepData.readDataForInterval(interval).last().metricValue
-            _calories.value = repository.caloriesData.readDataForInterval(interval).last().metricValue
+            _mins.value = repository.readExerciseMinutesData(interval).last().metricValue
+            _steps.value = repository.readStepsData(interval).last().metricValue
+            _distance.value = repository.readDistanceData(interval).last().metricValue
+            _sleepDuration.value = repository.readSleepData(interval).last().metricValue
+            _calories.value = repository.readCaloriesData(interval).last().metricValue
         }
     }
 
+    fun writeStepsData(steps: Long, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        viewModelScope.launch {
+            repository.writeStepsData(steps, startTime, endTime)
+        }
+    }
+
+    fun writeDistanceData(distance: Double, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        viewModelScope.launch {
+            repository.writeDistanceData(distance, startTime, endTime)
+        }
+    }
+    fun writeCaloriesData(distance: Double, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        viewModelScope.launch {
+            repository.writeCaloriesData(distance, startTime, endTime)
+        }
+    }
+    fun writeExerciseMinutesData(distance: Double, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        viewModelScope.launch {
+            repository.writeExerciseMinutesData(distance, startTime, endTime)
+        }
+    }
+    fun writeSleepData(distance: Double, startTime: ZonedDateTime, endTime: ZonedDateTime) {
+        viewModelScope.launch {
+            repository.writeSleepData(distance, startTime, endTime)
+        }
+    }
 }
