@@ -29,11 +29,12 @@ class HealthConnectViewModel (private val repository: HealthRepositoryImpl): Vie
 
     fun fetchHealthData() {
         viewModelScope.launch {
-            _mins.value = repository.exerciseMinutesData.readDataForInterval(interval)[0].metricValue
-            _steps.value = repository.stepsData.readDataForInterval(interval)[0].metricValue
-            _distance.value = repository.distanceData.readDataForInterval(interval)[0].metricValue
+            _mins.value = repository.exerciseMinutesData.readDataForInterval(interval).last().metricValue
+            _steps.value = repository.stepsData.readDataForInterval(interval).last().metricValue
+            _distance.value = repository.distanceData.readDataForInterval(interval).last().metricValue
             _sleepDuration.value = repository.sleepData.readDataForInterval(interval).last().metricValue
-            _calories.value = repository.caloriesData.readDataForInterval(interval)[0].metricValue
+            _calories.value = repository.caloriesData.readDataForInterval(interval).last().metricValue
         }
     }
+
 }

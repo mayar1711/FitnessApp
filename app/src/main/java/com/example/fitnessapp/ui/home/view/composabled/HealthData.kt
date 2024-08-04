@@ -1,20 +1,31 @@
 package com.example.fitnessapp.ui.home.view.composabled
 
-import com.example.fitnessapp.ui.home.viewmodel.HealthConnectViewModel
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,14 +37,15 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import com.example.fitnessapp.R
 import com.example.fitnessapp.model.repository.HealthRepositoryImpl
+import com.example.fitnessapp.ui.home.viewmodel.HealthConnectViewModel
 import com.example.fitnessapp.utils.PERMISSIONS
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HealthConnectScreen() {
    val viewModel = HealthConnectViewModel(HealthRepositoryImpl.getInstance())
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     val steps by viewModel.steps.collectAsState()
     val mins by viewModel.mins.collectAsState()
     val distance by viewModel.distance.collectAsState()
@@ -67,6 +79,7 @@ fun HealthConnectScreen() {
             }
         }
     }
+    val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd MMM"))
 
     Scaffold(topBar = {
         Column(
@@ -81,7 +94,7 @@ fun HealthConnectScreen() {
                 color = Color.Black
             )
             Text(
-                text = "Saturday, 03 Aug",
+                text = currentDate,
                 fontSize = 18.sp,
                 color = Color.Gray
             )
@@ -101,21 +114,6 @@ fun HealthConnectScreen() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFFEBF5FF))
-                                .padding(16.dp),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(
-                                text = "Your daily goals almost done! 👏",
-                                fontSize = 16.sp,
-                                color = Color.Black,
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        }
-
                         Text(
                             text = "Today's Summary",
                             fontSize = 20.sp,
@@ -141,6 +139,13 @@ fun HealthConnectScreen() {
                             ) {
                                 DataCard(label = "Heart Rate", value = "83", unit = "bpm", icon = R.drawable.baseline_favorite_24)
                                 DataCard(label = "Sleep", value = sleepDuration, unit = "hours", icon = R.drawable.baseline_favorite_24)
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                DataCard(label = "Exercise", value = mins, unit = "mins", icon = R.drawable.baseline_favorite_24)
+                                DataCard(label = "Distance", value = distance, unit = "m", icon = R.drawable.baseline_favorite_24)
                             }
                         }
                     }

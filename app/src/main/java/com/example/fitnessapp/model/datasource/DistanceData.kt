@@ -63,7 +63,7 @@ class DistanceData(private val healthConnectClient: HealthConnectClient) : Healt
                 val totalDistance = dailyResult.result[DistanceRecord.DISTANCE_TOTAL]?.inMiles
                 distanceData.add(
                     DataRecord(
-                        metricValue = (totalDistance ?: 0.0).toString(),
+                        metricValue = String.format("%.3f", totalDistance ?: 0.0),
                         dataType = DataType.DISTANCE,
                         toDatetime = dailyResult.endTime.atZone(ZoneId.systemDefault())
                             .minusSeconds(1)

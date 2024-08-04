@@ -51,7 +51,7 @@ class SleepData(private val healthConnectClient: HealthConnectClient) : HealthDa
                     if (response.records[index].startTime > end) {
                         sleepData.add(
                             DataRecord(
-                                metricValue = Duration.between(start, end).toMinutes()
+                                metricValue = Duration.between(start, end).toHours()
                                     .toString(),
                                 dataType = DataType.SLEEP,
                                 toDatetime = end.atZone(ZoneId.systemDefault())
@@ -68,7 +68,7 @@ class SleepData(private val healthConnectClient: HealthConnectClient) : HealthDa
                 }
                 sleepData.add(
                     DataRecord(
-                        metricValue = Duration.between(start, end).toMinutes().toString(),
+                        metricValue = Duration.between(start, end).toHours().toString(),
                         dataType = DataType.SLEEP,
                         toDatetime = end.atZone(ZoneId.systemDefault())
                             .format(dateTimeFormatter),
@@ -76,7 +76,6 @@ class SleepData(private val healthConnectClient: HealthConnectClient) : HealthDa
                             .format(dateTimeFormatter)
                     )
                 )
-
             }
         }
 
