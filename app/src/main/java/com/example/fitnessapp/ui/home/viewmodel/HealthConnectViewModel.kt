@@ -2,12 +2,13 @@ package com.example.fitnessapp.ui.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.fitnessapp.model.Repository
+import com.example.fitnessapp.model.repository.HealthRepository
+import com.example.fitnessapp.model.repository.HealthRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class HealthConnectViewModel : ViewModel() {
+class HealthConnectViewModel (private val repository: HealthRepositoryImpl): ViewModel() {
 
     private val _steps = MutableStateFlow("0")
     val steps: StateFlow<String> = _steps
@@ -28,11 +29,11 @@ class HealthConnectViewModel : ViewModel() {
 
     fun fetchHealthData() {
         viewModelScope.launch {
-            _mins.value = Repository.exerciseMinutesData.readDataForInterval(interval)[0].metricValue
-            _steps.value = Repository.stepsData.readDataForInterval(interval)[0].metricValue
-            _distance.value = Repository.distanceData.readDataForInterval(interval)[0].metricValue
-            _sleepDuration.value = Repository.sleepData.readDataForInterval(interval).last().metricValue
-            _calories.value = Repository.caloriesData.readDataForInterval(interval)[0].metricValue
+            _mins.value = repository.exerciseMinutesData.readDataForInterval(interval)[0].metricValue
+            _steps.value = repository.stepsData.readDataForInterval(interval)[0].metricValue
+            _distance.value = repository.distanceData.readDataForInterval(interval)[0].metricValue
+            _sleepDuration.value = repository.sleepData.readDataForInterval(interval).last().metricValue
+            _calories.value = repository.caloriesData.readDataForInterval(interval)[0].metricValue
         }
     }
 }

@@ -1,6 +1,5 @@
-package com.example.fitnessapp.ui.home.view
+package com.example.fitnessapp.ui.home.view.composabled
 
-import com.example.fitnessapp.model.Repository
 import com.example.fitnessapp.ui.home.viewmodel.HealthConnectViewModel
 import android.content.Intent
 import android.net.Uri
@@ -26,9 +25,12 @@ import androidx.compose.ui.unit.sp
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import com.example.fitnessapp.R
+import com.example.fitnessapp.model.repository.HealthRepositoryImpl
+import com.example.fitnessapp.utils.PERMISSIONS
 
 @Composable
-fun HealthConnectScreen(viewModel: HealthConnectViewModel) {
+fun HealthConnectScreen() {
+   val viewModel = HealthConnectViewModel(HealthRepositoryImpl.getInstance())
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -38,9 +40,10 @@ fun HealthConnectScreen(viewModel: HealthConnectViewModel) {
     val sleepDuration by viewModel.sleepDuration.collectAsState()
      val calories by viewModel.calories.collectAsState()
     var showHealthConnectInstallPopup by remember { mutableStateOf(false) }
+    val healthRepository = HealthRepositoryImpl.getInstance()
 
     val requestPermissions = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) { granted ->
-        if (granted.containsAll(Repository.PERMISSIONS)) {
+        if (granted.containsAll(PERMISSIONS)) {
             viewModel.fetchHealthData()
         } else {
             Toast.makeText(context, "Permissions are rejected", Toast.LENGTH_SHORT).show()
@@ -48,7 +51,7 @@ fun HealthConnectScreen(viewModel: HealthConnectViewModel) {
     }
 
     LaunchedEffect(key1 = true) {
-        when (Repository.checkForHealthConnectInstalled(context)) {
+        when (healthRepository.checkForHealthConnectInstalled(context)) {
             HealthConnectClient.SDK_UNAVAILABLE -> {
                 Toast.makeText(context, "Health Connect client is not available for this device", Toast.LENGTH_SHORT).show()
             }
@@ -56,10 +59,10 @@ fun HealthConnectScreen(viewModel: HealthConnectViewModel) {
                 showHealthConnectInstallPopup = true
             }
             HealthConnectClient.SDK_AVAILABLE -> {
-                if (Repository.checkPermissions()) {
+                if (healthRepository.checkPermissions()) {
                     viewModel.fetchHealthData()
                 } else {
-                    requestPermissions.launch(Repository.PERMISSIONS)
+                    requestPermissions.launch(PERMISSIONS)
                 }
             }
         }

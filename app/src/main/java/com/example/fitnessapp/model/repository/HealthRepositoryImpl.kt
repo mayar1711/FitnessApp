@@ -1,6 +1,7 @@
-package com.example.fitnessapp.model
+package com.example.fitnessapp.model.repository
 
 import android.content.Context
+import android.widget.Toast
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.DistanceRecord
@@ -13,14 +14,21 @@ import com.example.fitnessapp.model.datasource.DistanceData
 import com.example.fitnessapp.model.datasource.ExerciseMinutesData
 import com.example.fitnessapp.model.datasource.SleepData
 import com.example.fitnessapp.model.datasource.StepsData
+import com.example.fitnessapp.utils.PERMISSIONS
 import java.time.format.DateTimeFormatter
 
-/*
+class HealthRepositoryImpl private constructor() : HealthRepository {
 
-object Repository {
+    companion object {
+        private var INSTANCE: HealthRepositoryImpl? = null
 
-     val dateTimeFormatter: DateTimeFormatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX")
+        fun getInstance(): HealthRepositoryImpl {
+            if (INSTANCE == null) {
+                INSTANCE = HealthRepositoryImpl()
+            }
+            return INSTANCE!!
+        }
+    }
     var healthConnectClient: HealthConnectClient? = null
 
     val stepsData: StepsData by lazy { StepsData(healthConnectClient!!) }
@@ -29,31 +37,15 @@ object Repository {
     val sleepData: SleepData by lazy { SleepData(healthConnectClient!!) }
     val caloriesData: CaloriesData by lazy { CaloriesData(healthConnectClient!!) }
 
-    val PERMISSIONS = setOf(
-        HealthPermission.getReadPermission(StepsRecord::class),
-        HealthPermission.getReadPermission(SleepSessionRecord::class),
-        HealthPermission.getReadPermission(DistanceRecord::class),
-        HealthPermission.getReadPermission(ExerciseSessionRecord::class),
-        HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
-        HealthPermission.getWritePermission(StepsRecord::class),
-        HealthPermission.getWritePermission(SleepSessionRecord::class),
-        HealthPermission.getWritePermission(DistanceRecord::class),
-        HealthPermission.getWritePermission(ExerciseSessionRecord::class),
-        HealthPermission.getWritePermission(TotalCaloriesBurnedRecord::class)
-    )
-
-    fun checkForHealthConnectInstalled(context: Context): Int {
+    override fun checkForHealthConnectInstalled(context: Context): Int {
         val availabilityStatus =
             HealthConnectClient.getSdkStatus(context, "com.google.android.apps.healthdata")
         when (availabilityStatus) {
             HealthConnectClient.SDK_UNAVAILABLE -> {
-            */
-/* Handle unavailable state *//*
-
+                Toast.makeText(context, "Health Connect is not available on this device.", Toast.LENGTH_LONG).show()
             }
             HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> {
-            */
-/* Handle provider update required state *//*
+                Toast.makeText(context, "Please update your Health Connect provider.", Toast.LENGTH_LONG).show()
 
             }
             HealthConnectClient.SDK_AVAILABLE -> {
@@ -63,9 +55,8 @@ object Repository {
         return availabilityStatus
     }
 
-    suspend fun checkPermissions(): Boolean {
+    override suspend fun checkPermissions(): Boolean {
         val granted = healthConnectClient?.permissionController?.getGrantedPermissions()
         return granted?.containsAll(PERMISSIONS) ?: false
     }
-
-}*/
+}

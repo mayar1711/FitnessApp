@@ -7,8 +7,8 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.example.fitnessapp.model.DataRecord
 import com.example.fitnessapp.model.DataType
-import com.example.fitnessapp.model.Repository
-import com.example.fitnessapp.model.Repository.dateTimeFormatter
+import com.example.fitnessapp.model.repository.HealthRepositoryImpl
+import com.example.fitnessapp.utils.dateTimeFormatter
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -24,7 +24,7 @@ class SleepData(private val healthConnectClient: HealthConnectClient) : HealthDa
 
         val sleepData = mutableListOf<DataRecord>()
         val response =
-            Repository.healthConnectClient?.readRecords(
+            HealthRepositoryImpl.getInstance().healthConnectClient?.readRecords(
                 ReadRecordsRequest(
                     SleepSessionRecord::class,
                     timeRangeFilter = TimeRangeFilter.between(

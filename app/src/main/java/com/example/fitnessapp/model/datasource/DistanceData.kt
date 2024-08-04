@@ -8,8 +8,14 @@ import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Length
 import com.example.fitnessapp.model.DataRecord
 import com.example.fitnessapp.model.DataType
-import com.example.fitnessapp.model.Repository.dateTimeFormatter
-import java.time.*
+import com.example.fitnessapp.utils.dateTimeFormatter
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Period
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.TimeZone
 
 class DistanceData(private val healthConnectClient: HealthConnectClient) : HealthDataReader,

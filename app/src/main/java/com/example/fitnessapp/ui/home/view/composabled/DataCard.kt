@@ -1,4 +1,4 @@
-package com.example.fitnessapp.ui.home.view
+package com.example.fitnessapp.ui.home.view.composabled
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
