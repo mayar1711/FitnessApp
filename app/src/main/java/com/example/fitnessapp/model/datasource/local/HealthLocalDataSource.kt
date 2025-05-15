@@ -1,9 +1,8 @@
-package com.example.fitnessapp.model.repository
+package com.example.fitnessapp.model.datasource.local
 
 import com.example.fitnessapp.model.datasource.model.VitalsData
 
-interface HealthRepository {
-
+interface HealthLocalDataSource {
     suspend fun getVitalsData(): VitalsData
 
-    }
+}
