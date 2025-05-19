@@ -4,7 +4,7 @@ import com.example.fitnessapp.model.datasource.local.HealthLocalDataSource
 import com.example.fitnessapp.model.datasource.model.VitalsData
 import javax.inject.Inject
 
-class HealthRepositoryImpl @Inject constructor(private val localDataSource: HealthLocalDataSource) :
+class RepositoryImpl @Inject constructor(private val localDataSource: HealthLocalDataSource) :
     HealthRepository {
 
     override suspend fun getVitalsData(): VitalsData {
@@ -13,3 +13,4 @@ class HealthRepositoryImpl @Inject constructor(private val localDataSource: Heal
 
 
 }
+
