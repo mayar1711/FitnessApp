@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
@@ -21,6 +22,7 @@ fun DataCard(
 ) {
     Card(
         modifier = modifier
+            .testTag(value)
             .padding(8.dp)
             .size(150.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),

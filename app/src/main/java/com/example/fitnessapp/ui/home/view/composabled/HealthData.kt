@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fitnessapp.R
@@ -27,7 +28,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HealthyData(vitalsData: VitalsData) {
-    val context = LocalContext.current
 
     val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd MMM"))
 
@@ -74,6 +74,7 @@ fun HealthyData(vitalsData: VitalsData) {
                             modifier = Modifier
                                 .padding(horizontal = 8.dp)
                                 .fillMaxWidth()
+                                .testTag("Display Healthy Data")
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
