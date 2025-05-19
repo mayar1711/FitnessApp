@@ -50,6 +50,10 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/*"
+            jniLibs {
+                useLegacyPackaging = true
+            }
         }
     }
 }
@@ -73,6 +77,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.1")
+
     //viewmodel
     implementation(libs.androidx.lifecycle.viewmodel.compose.android)
     //navigation
@@ -98,8 +105,11 @@ dependencies {
     androidTestImplementation (libs.hamcrest.library)
 
     //MockK
-    testImplementation (libs.mockk.android)
-    testImplementation (libs.mockk.agent)
+    testImplementation("io.mockk:mockk:1.14.2")
+    testImplementation("io.mockk:mockk-agent-jvm:1.14.2")
+    androidTestImplementation("io.mockk:mockk-android:1.14.2")
+    androidTestImplementation("io.mockk:mockk-agent-android:1.14.2")
+    androidTestImplementation("io.mockk:mockk-agent-jvm:1.14.2")
 
     //Robolectric
     testImplementation (libs.robolectric)
@@ -113,6 +123,5 @@ dependencies {
     testImplementation ("org.mockito:mockito-core:5.0.0")
     testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0")
     testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
-
 
 }
