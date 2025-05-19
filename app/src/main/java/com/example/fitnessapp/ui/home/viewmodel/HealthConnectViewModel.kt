@@ -3,7 +3,7 @@ package com.example.fitnessapp.ui.home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.model.datasource.model.VitalsData
-import com.example.fitnessapp.model.repository.HealthRepositoryImpl
+import com.example.fitnessapp.model.repository.RepositoryImpl
 import com.example.fitnessapp.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,7 @@ import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class HealthConnectViewModel @Inject constructor(private val repository: HealthRepositoryImpl) :
+class HealthConnectViewModel @Inject constructor(private val repository: RepositoryImpl) :
     ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<VitalsData>>(UiState.Idle)

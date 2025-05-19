@@ -10,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.example.fitnessapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.fitnessapp"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -35,11 +35,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.firebase.auth)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -88,5 +89,30 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
+
+
+    // hamcrest
+    testImplementation (libs.hamcrest)
+    testImplementation (libs.hamcrest.library)
+    androidTestImplementation (libs.hamcrest)
+    androidTestImplementation (libs.hamcrest.library)
+
+    //MockK
+    testImplementation (libs.mockk.android)
+    testImplementation (libs.mockk.agent)
+
+    //Robolectric
+    testImplementation (libs.robolectric)
+
+    //kotlinx-coroutines
+    testImplementation (libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
+    androidTestImplementation (libs.org.jetbrains.kotlinx.kotlinx.coroutines.test2)
+    testImplementation(kotlin("test"))
+
+
+    testImplementation ("org.mockito:mockito-core:5.0.0")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+
 
 }
